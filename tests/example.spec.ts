@@ -1,10 +1,27 @@
 import { test, expect } from '@playwright/test';
 
-test('has title', async ({ page }) => {
-  await page.goto('https://playwright.dev/');
+let context: any;
+let page: any;
+test.beforeAll(async ({browser}) => {
+  context = await browser.newContext();
+  await context.tracing.start({
+    screenshots: true,
+    snapshots:true
+  })
+  page = await context.newPage();
+})
 
+test.afterAll(async () => {
+  await context.tracing.stop({ path: 'trace_3.zip' });
+})
+
+test('has title', async ({ page, context }) => {
+  await context.tracing.start({ screenshots: true, snapshots: true });
+  await page.goto('https://playwright.dev/');
+  
   // Expect a title "to contain" a substring.
   await expect(page).toHaveTitle(/Playwright/);
+  // await context.tracing.stop({ path: 'trace_2.zip'});
 });
 
 test('get started link', async ({ page }) => {
